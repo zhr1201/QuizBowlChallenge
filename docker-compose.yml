@@ -27,3 +27,13 @@ services:
       - "qb"
     environment:
       - "PYTHONUNBUFFERED=1"
+  interactive:
+    image: "docker.io/entilzha/quizbowl:0.1"
+    ports:
+      - "4861:4861"
+    volumes:
+      - ./src/:/src
+      - ./data/:/src/data
+    entrypoint: /bin/sh
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t

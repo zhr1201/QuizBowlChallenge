@@ -10,3 +10,14 @@ services:
       - ./src/:/src
       - ./data/:/src/data
     command: ["bash", "run.sh"]
+  interactive:
+    image: "docker.io/entilzha/quizbowl-gpu:0.1"
+    runtime: nvidia
+    ports:
+      - "4861:4861"
+    volumes:
+      - ./src/:/src
+      - ./data/:/src/data
+    entrypoint: /bin/sh
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t

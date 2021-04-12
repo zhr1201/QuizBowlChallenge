@@ -16,7 +16,7 @@ def cli():
 
 
 @cli.command()
-@click.option('--config-file', required=True, type=str)
+@click.option('--config-file', default='conf/TFIDF-None.yaml')
 @click.option('--host', default='0.0.0.0')
 @click.option('--port', default=4861)
 @click.option('--disable-batch', default=False, is_flag=True)
@@ -39,7 +39,7 @@ def web(
 
 
 @cli.command()
-@click.option('--config-file', required=True, type=str)
+@click.option('--config-file', default='conf/TFIDF-None.yaml')
 def train_retriever(config_file: str):
     """
     Train a retriever
@@ -50,7 +50,7 @@ def train_retriever(config_file: str):
 
 
 @cli.command()
-@click.option('--config-file', required=True, type=str)
+@click.option('--config-file', default='conf/TFIDF-None.yaml')
 def train_reranker(config_file: str):
     """
     Train a reranker

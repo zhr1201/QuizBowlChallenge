@@ -8,4 +8,4 @@ else
   echo "INFO: Using base environemnt"
 fi
 
-python -m qanta.tfidf web
+python -m qanta.cli web

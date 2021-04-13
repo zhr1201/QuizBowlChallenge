@@ -13,11 +13,13 @@ class AbsReranker(ABC):
     @abstractmethod
     def rerank(
         self,
+        questions: List[str],
         top_k_list: List[List[Tuple[str, float]]],
     ) -> List[List[Tuple[str, float]]]:
         '''
         Args:
-            questions: List[List[Tuple[str, float]]], a list of input top k result of [wiki_tag, retrieve score]
+            questions: List[str], a list of input questions
+            top_k_list: List[List[Tuple[str, float]]], a list of input top k result of [wiki_tag, retrieve score]
         Returns:
             the reranked results [wiki_tag, reranked points]
         '''

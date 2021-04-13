@@ -2,7 +2,7 @@
 Based on https://github.com/Pinafore/qanta-codalab, (read this for how to run the containers), refactored to allow extending the retriever and reranker classes with yaml config files.
 
 ## Command line interface changes
-Please refer to the qanta/cli.py, train is separeted to train_retriever and train_reranker. And '--config-file' are added for passing the config file of the models.
+Please refer to qanta/cli.py, train is separeted to train_retriever and train_reranker. And '--config-file' is added for passing the config file of the models.
 
 # For developers
 ## Branching

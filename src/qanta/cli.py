@@ -16,7 +16,7 @@ def cli():
 
 
 @cli.command()
-@click.option('--config-file', default='conf/TFIDF-None.yaml')
+@click.option('--config-file', default='conf/TFIDF-FeatureReranker.yaml')
 @click.option('--host', default='0.0.0.0')
 @click.option('--port', default=4861)
 @click.option('--disable-batch', default=False, is_flag=True)

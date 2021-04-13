@@ -6,9 +6,11 @@ dependencies:
   - pandas
   - scikit-learn
   - nltk
-  - requests
+  - requests=2.24.0
   - click
   - flask
+  - pip:
+    - wikipedia
 channels:
   - anaconda
   - pytorch

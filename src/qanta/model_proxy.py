@@ -1,6 +1,6 @@
 # Copyright 2021 UMD (Haoran Zhou)
 
-# A guesser task class and command line interface for training and evaluation and etc. 
+# A a model proxy class for training and evaluation and etc. 
 
 
 from abc import ABC

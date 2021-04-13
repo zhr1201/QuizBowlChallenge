@@ -21,6 +21,7 @@ class TfidfRetriever(AbsRetriever):
         Args:
             k: int, for retrieve the top k results
         '''
+        super().__init__()
         self.tfidf_vectorizer = None
         self.tfidf_matrix = None
         self.i_to_ans = None

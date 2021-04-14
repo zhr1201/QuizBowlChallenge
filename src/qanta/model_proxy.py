@@ -99,7 +99,7 @@ class ModelProxy(ABC):
         '''
         args = cls._load_yaml(config_file)
         retriever = cls._build_retriever(is_load=True, **args)
-        reranker = cls._build_reranker(is_load=True, **args)
+        reranker = cls._build_reranker(is_load=False, **args)
         path = args['reranker_path']
         if 'reranker_train_args' in args and args['reranker_train_args'] is not None:
             train_args = args['reranker_train_args']

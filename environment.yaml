@@ -4,9 +4,9 @@ dependencies:
   - numpy
   - scipy
   - pandas
-  - scikit-learn
+  - scikit-learn=0.19.2
   - nltk
-  - requests=2.24.0
+  - requests
   - click
   - flask
   - pip:

@@ -9,7 +9,7 @@ services:
       - ./data/:/src/data
     command: ["bash", "run.sh"]
   interactive:
-    build: . 
+    build: .
     ports:
       - "4861:4861"
     volumes:

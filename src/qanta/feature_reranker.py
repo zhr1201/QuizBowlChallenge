@@ -9,8 +9,15 @@ from abc import ABC
 from abc import abstractmethod
 from qanta.abs_reranker import AbsReranker
 from qanta.abs_retriever import AbsRetriever
+from qanta.dataset import QuizBowlDataset
 import wikipedia
 import logging
+from tqdm import tqdm
+import pickle
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(20)
 
 
 class FeatureReranker(AbsReranker):
@@ -24,17 +31,34 @@ class FeatureReranker(AbsReranker):
         '''
         super().__init__()
         self.weight = weight
+        self.wiki_page_dict = {}
     
     def train(
         self,
         path: str,
         retriever: AbsRetriever,
-        **args,
     ):
         '''
-        doesn't require training
+        download all the wikipage info in the training set
+        Args:
+            path: str, pkl model path
+            retriever: AbsRetriever, not used here
         '''
-        pass
+        dataset = QuizBowlDataset(guesser_train=True)
+        training_data = dataset.training_data()
+        answers = training_data[1]
+        logger.info("Start extracing wiki pages")
+
+        for ans in tqdm(answers):
+            try:
+                self.wiki_page_dict[ans] = wikipedia.page(ans, auto_suggest=False)
+            except:
+                logger.warning("Fail to get " + ans)
+
+        with open(path, 'wb') as f:
+            pickle.dump({
+                'wiki_page_dict': self.wiki_page_dict
+            }, f)
 
     @classmethod
     def load(
@@ -51,6 +75,9 @@ class FeatureReranker(AbsReranker):
             the loaded model
         '''
         reranker = FeatureReranker(weight)
+        with open(path, 'rb') as f:
+            params = pickle.load(f)
+            reranker.wiki_page_dict = params['wiki_page_dict']
         return reranker
     
     def rerank(
@@ -88,7 +115,11 @@ class FeatureReranker(AbsReranker):
         ret = []
         for result in top_k:
             question_lower = question.lower()
-            ret.append(self._rescore_one_page(question_lower, result))
+            new_score = self._rescore_one_page(question_lower, result)
+            if new_score is None:
+                logger.warning("Skip reranking due to missing page info")
+                return top_k
+            ret.append()
         return ret
 
     def _rescore_one_page(
@@ -104,62 +135,21 @@ class FeatureReranker(AbsReranker):
             the reranked results [wiki_tag, reranked points]
         ''' 
         
-        logging.warning("reranking " + page_info[0] + ' score ' + str(page_info[1]))
+        logger.info("reranking " + page_info[0] + ' score ' + str(page_info[1]))
         mention_count = 0
-        page = wikipedia.page(page_info[0], auto_suggest=False)
-        # page = self._try_get_page0(page_info[0])
+        if page_info[0] in self.wiki_page_dict:
+            page = self.wiki_page_dict[page_info[0]]
+        else:
+            logger.warning("Page" + page_info[0] + " not in the dictionary of the model")
+            return None
         links = [ x.lower() for x in page.links ]
         anchor_list = set(links)  # possible duplicates
         for anchor in anchor_list:
             if anchor in question:
-                logging.warning(anchor)
+                logger.info("matched " + anchor)
                 mention_count += 1
         
         score = page_info[1] + mention_count * self.weight
-        logging.warning("reranked " + str(score))
+        logger.info("reranked " + str(score))
         return (page_info[0], score)
-    
-    # def _try_get_page0(self, page_name: str) -> wikipedia.wikipedia.WikipediaPage:
-    #     '''
-    #     Wrapper for trying to get the wiki page from it's nametag
-    #     may not working perfectly
-    #     Args:
-    #         page_name: str, input page name
-    #     Return:
-    #         the wiki page with page_name
-    #     '''
-    #     try:
-    #         page = wikipedia.page(page_name)
-    #     except:
-    #         try:
-    #             page = self._try_get_page1(page_name)
-    #         except:
-    #             raise RuntimeError("Fail to get wikipage with tag " + page_name)
-    #     return page
-
-    # def _try_get_page1(self, page_name: str) -> str:
-    #     '''
-    #     search with '.' removed
-    #     Args:
-    #         page_name: str, input page name
-    #     Return:
-    #         the wiki page with page_name
-    #     '''
-    #     page_name = page_name.replace('.', '')
-    #     try:
-    #         page = wikipedia.page(page_name)
-    #     except:
-    #         page = self._try_get_page2(page_name)
-    #     return page
-
-    # def _try_get_page2(self, page_name: str) -> str:
-    #     '''
-    #     search with '_' removed
-    #     Args:
-    #         page_name: str, input page name
-    #     Return:
-    #         the wiki page with page_name
-    #     '''
-    #     page_name = page_name.replace('_', '')
-    #     page = wikipedia.page(page_name)
-    #     return page
+   

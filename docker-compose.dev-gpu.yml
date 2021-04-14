@@ -11,7 +11,9 @@ services:
       - ./data/:/src/data
     command: ["bash", "run.sh"]
   interactive:
-    image: "docker.io/entilzha/quizbowl-gpu:0.1"
+    build:
+      context: .
+      dockerfile: Dockerfile-gpu
     runtime: nvidia
     ports:
       - "4861:4861"

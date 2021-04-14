@@ -5,7 +5,7 @@ retriever_conf:
 retriever_train_args:
 
 reranker: FeatureReranker
-reranker_path: None
+reranker_path: feature_reranker.pickle
 reranker_conf:
   weight: 1
 reranker_train_args:

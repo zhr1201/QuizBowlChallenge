@@ -35,7 +35,7 @@ def web(
         disable_batch: bool, if batch evaluation is enabled
     """
     app = create_app(config_file=config_file, enable_batch=not disable_batch)
-    app.run(host=host, port=port, debug=True)
+    app.run(host=host, port=port, debug=False)
 
 
 @cli.command()

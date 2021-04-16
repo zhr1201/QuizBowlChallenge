@@ -170,7 +170,10 @@ class FeatureReranker(AbsReranker):
         else:
             logger.warning("Page" + page_info[0] + " not in the dictionary of the model")
             return None
-        links = [ x.lower() for x in page.links ]
+        try:
+            links = [ x.lower() for x in page.links ]
+        except:
+            return None
         anchor_list = set(links)  # possible duplicates
         for anchor in anchor_list:
             if anchor in question:

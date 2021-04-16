@@ -188,7 +188,7 @@ def get_answer_batch_whole(url, questions, evidences, char_step_size, batch_size
             for i, q in enumerate(qs):
                 query['questions'].append(
                     get_question_query(qids[i], q, [], char_idx, wiki_paragraphs))
-            resp = requests.post(url, json=query).json()
+            resp = requests.post(url, json=query, timeout=1000).json()
             for i, r in enumerate(resp):
                 q = query['questions'][i]
                 q.update(r)

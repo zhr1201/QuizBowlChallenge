@@ -16,7 +16,7 @@ def cli():
 
 
 @cli.command()
-@click.option('--config-file', default='conf/TFIDF-None.yaml')
+@click.option('--config-file', default='conf/TFIDF-FeatureReranker.yaml')
 @click.option('--host', default='0.0.0.0')
 @click.option('--port', default=4861)
 @click.option('--disable-batch', default=False, is_flag=True)
@@ -35,7 +35,7 @@ def web(
         disable_batch: bool, if batch evaluation is enabled
     """
     app = create_app(config_file=config_file, enable_batch=not disable_batch)
-    app.run(host=host, port=port, debug=False)
+    app.run(host=host, port=port, debug=True)
 
 
 @cli.command()

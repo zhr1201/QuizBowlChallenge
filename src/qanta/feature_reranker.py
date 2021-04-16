@@ -20,7 +20,8 @@ import json
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(20)
+logging.basicConfig(level = logging.INFO)
+
 WIKI_DUMP_URL = "https://s3-us-west-2.amazonaws.com/pinafore-us-west-2/qanta-jmlr-datasets/wikipedia/wiki_lookup.json"
 
 
@@ -141,7 +142,12 @@ class FeatureReranker(AbsReranker):
             if new_score is None:
                 logger.warning("Skip reranking due to missing page info")
                 return top_k
-            ret.append()
+            ret.append(new_score)
+        # ret.sort(key = lambda x: x[1])
+        # ret.reverse()
+        # if (ret[0][0] != top_k[0][0]):
+        #     logger.info("Reranker changed the best guess from %s to %s" % (top_k[0][0], ret[0][0]))
+        #     logger.info("Original question: %s" % question)
         return ret
 
     def _rescore_one_page(

@@ -4,11 +4,13 @@ dependencies:
   - numpy
   - scipy
   - pandas
-  - scikit-learn
+  - scikit-learn=0.19.2
   - nltk
   - requests
   - click
   - flask
+  - pip:
+    - wikipedia
 channels:
   - anaconda
   - pytorch

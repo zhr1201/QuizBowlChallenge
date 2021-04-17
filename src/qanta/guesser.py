@@ -36,11 +36,11 @@ class Guesser(ABC):
             max_n_guesses of titles of the wiki passages (a batch)
         '''
         top_k_list = self.retriever.retrieve(questions)
-        if self.retriever.output_size > max_n_guesses:
+        if self.retriever.output_size < max_n_guesses:
             raise RuntimeError(
                 "Can't produce max_n_guesses cause the retirever doesn't provide enough results")
         if self.reranker is not None:
-            reranked_list = self.reranker.rerank(top_k_list)
+            reranked_list = self.reranker.rerank(questions, top_k_list)
         else:
             reranked_list = top_k_list
         

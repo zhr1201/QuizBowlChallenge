@@ -14,6 +14,7 @@ from qanta.guesser import Guesser
 from qanta.abs_reranker import AbsReranker
 from qanta.abs_retriever import AbsRetriever
 from qanta.tfidf_retriever import TfidfRetriever
+from qanta.feature_reranker import FeatureReranker
 import yaml
 
 
@@ -46,7 +47,7 @@ add your class to this dictionary for extending more retriever and reranker
 '''
 
 RETRIEVER_CHOICES = {'TFIDF': TfidfRetriever}
-RERANKER_CHOICES = {}
+RERANKER_CHOICES = {'FeatureReranker': FeatureReranker}
 
 
 class ModelProxy(ABC):
@@ -98,7 +99,7 @@ class ModelProxy(ABC):
         '''
         args = cls._load_yaml(config_file)
         retriever = cls._build_retriever(is_load=True, **args)
-        reranker = cls._build_reranker(is_load=True, **args)
+        reranker = cls._build_reranker(is_load=False, **args)
         path = args['reranker_path']
         if 'reranker_train_args' in args and args['reranker_train_args'] is not None:
             train_args = args['reranker_train_args']

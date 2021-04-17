@@ -1,7 +1,7 @@
 version: '3'
 services:
   qb:
-    image: "docker.io/entilzha/quizbowl:0.1"
+    build: .
     ports:
       - "4861:4861"
     volumes:
@@ -9,7 +9,7 @@ services:
       - ./data/:/src/data
     command: ["bash", "run.sh"]
   eval:
-    image: "docker.io/entilzha/quizbowl:0.1"
+    build: .
     volumes:
       - ./src/:/src
       - ./data/:/src/data

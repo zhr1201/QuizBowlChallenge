@@ -7,6 +7,6 @@ retriever_train_args:
 reranker: FeatureReranker
 reranker_path: feature_reranker.pickle
 reranker_conf:
-  weight: 1
+  weight: 0.015
 reranker_train_args:
   wiki_dump: data/wiki_lookup.json

@@ -93,7 +93,7 @@ class TfidfRetriever(AbsRetriever):
             retriever.tfidf_matrix = params['tfidf_matrix']
             retriever.i_to_ans = params['i_to_ans']
             return retriever
-    
+ 
     def _save(self, model_path: str):
         '''
         private helper for saving the model

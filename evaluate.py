@@ -160,6 +160,43 @@ def get_answer_batch(url, questions, evidences, char_step_size, batch_size, wiki
     return answers
 
 
+def get_answer_batch_whole(url, questions, evidences, char_step_size, batch_size, wiki_paragraphs=False):
+    elog.info('Collecting responses to questions in batches', batch_size)
+    answers = []
+    batch_ids = list(range(0, len(questions), batch_size))
+    for batch_idx in tqdm(batch_ids):
+        batch_ed = min(len(questions), batch_idx + batch_size)
+        qs = questions[batch_idx: batch_ed]
+        max_len = max(len(q['text']) for q in qs)
+        qids = list(range(batch_idx, batch_ed))
+        answers += [[] for _ in qs]
+        if wiki_paragraphs:
+            evs = evidences[batch_idx: batch_ed]
+            char_idx = max_len
+            query = {'questions': []}
+            for i, q in enumerate(qs):
+                query['questions'].append(
+                    get_question_query(qids[i], q, evs[i], char_idx, wiki_paragraphs))
+            resp = requests.post(url, json=query).json()
+            for i, r in enumerate(resp):
+                q = query['questions'][i]
+                q.update(r)
+                answers[qids[i]].append(q)
+        else:
+            char_idx = max_len
+            query = {'questions': []}
+            for i, q in enumerate(qs):
+                query['questions'].append(
+                    get_question_query(qids[i], q, [], char_idx, wiki_paragraphs))
+            resp = requests.post(url, json=query, timeout=1000).json()
+            for i, r in enumerate(resp):
+                q = query['questions'][i]
+                q.update(r)
+                answers[qids[i]].append(q)
+    return answers
+
+
+
 def check_port(hostname, port):
     pass
 
@@ -208,7 +245,7 @@ def evaluate(input_dir, output_dir, score_dir, char_step_size, hostname,
 
         if status is not None and status['batch'] is True:
             url = f'http://{hostname}:4861/api/1.0/quizbowl/batch_act'
-            answers = get_answer_batch(url, questions, evidences,
+            answers = get_answer_batch_whole(url, questions, evidences,
                                        char_step_size,
                                        status['batch_size'],
                                        wiki_paragraphs=include_wiki_paragraphs)

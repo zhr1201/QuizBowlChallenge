@@ -15,6 +15,7 @@ from qanta.abs_reranker import AbsReranker
 from qanta.abs_retriever import AbsRetriever
 from qanta.tfidf_retriever import TfidfRetriever
 from qanta.feature_reranker import FeatureReranker
+from qanta.heiarchical_attention_reranker import HeiarchicalAttentionReranker
 import yaml
 
 
@@ -47,7 +48,7 @@ add your class to this dictionary for extending more retriever and reranker
 '''
 
 RETRIEVER_CHOICES = {'TFIDF': TfidfRetriever}
-RERANKER_CHOICES = {'FeatureReranker': FeatureReranker}
+RERANKER_CHOICES = {'FeatureReranker': FeatureReranker, "HAR": HeiarchicalAttentionReranker}
 
 
 class ModelProxy(ABC):

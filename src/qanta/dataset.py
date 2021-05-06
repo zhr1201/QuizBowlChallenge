@@ -167,20 +167,20 @@ class QuizBowlDataset:
 
         return training_examples, training_pages, None
 
-    def training_data_text(self):
-        training_examples = []
-        training_pages = []
+    def dev_data_text(self):
+        dev_examples = []
+        dev_pages = []
         questions = []
         if self.guesser_train:
-            questions.extend(self.db.guess_train_questions)
+            questions.extend(self.db.guess_dev_questions)
         if self.buzzer_train:
-            questions.extend(self.db.buzz_train_questions)
+            questions.extend(self.db.buzz_dev_questions)
 
         for q in questions:
-            training_examples.append(q.text)
-            training_pages.append(q.page)
+            dev_examples.append(q.text)
+            dev_pages.append(q.page)
 
-        return training_examples, training_pages, None
+        return dev_examples, dev_pages, None
 
     def questions_by_fold(self):
         return {

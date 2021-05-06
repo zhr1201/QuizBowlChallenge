@@ -79,7 +79,6 @@ class TransformerEncoderClassifier(torch.nn.Module):
         '''
         hs_pad, olens, _ = self.transformer_enc(xs_pad, ilens)
 
-
     @staticmethod
     def collate_fn(batch: List[Dict[str, np.array]]) -> Dict[str, np.array]:
         '''
@@ -91,13 +90,15 @@ class TransformerEncoderClassifier(torch.nn.Module):
         Returns:
             training data compatible with the model and HARDataset
         '''
-        xs = [np.concatenate(x['question_emb'], x['sent_emb']) for x in batch]
+        xs = [np.concatenate((x['question_emb'].reshape([1, -1]), x['sentence_emb'])) for x in batch]
         ilen = [x.shape[0] for x in xs]
         labels = [x['label'] for x in batch]
+        xs = [torch.from_numpy(x) for x in xs]
         xs_pad = pad_sequence(xs)
-        ilen = torch.stack(ilen)
-        labels = torch.stack(labels)
-        return {'xs_pad': xs_pad, 'ilen': ilen, 'lebels': labels}
+        xs_pad = xs_pad.permute([1, 0, 2])
+        ilen = torch.tensor(ilen)
+        labels = torch.tensor(labels)
+        return {'xs_pad': xs_pad, 'ilens': ilen, 'labels': labels}
 
 
 WIKI_DUMP_URL = "https://s3-us-west-2.amazonaws.com/pinafore-us-west-2/qanta-jmlr-datasets/wikipedia/wiki_lookup.json"
@@ -129,7 +130,7 @@ class HeiarchicalAttentionReranker(AbsReranker):
         self.wiki_page_dict = {}
         self.sent_embedder = SentenceTransformer('paraphrase-distilroberta-base-v1')
         self.model = TransformerEncoderClassifier(
-            input_size, attention_dim,attention_heads, num_blocks)
+            input_size, attention_dim,attention_heads, num_blocks).to('cuda:0')
     
     def train(
         self,
@@ -159,7 +160,7 @@ class HeiarchicalAttentionReranker(AbsReranker):
         TRAIN_DATA_DUMP = "train_data.dump"
         if not os.path.isfile(TRAIN_DATA_DUMP):
             dataset_train = HARDataset(sample_list_train, self.sent_embedder)
-            with open(path, 'wb') as f:
+            with open(TRAIN_DATA_DUMP, 'wb') as f:
                 pickle.dump({
                     'train_data_dump': dataset_train
                 }, f)
@@ -172,10 +173,10 @@ class HeiarchicalAttentionReranker(AbsReranker):
         
         sample_list_val = self._prepare_question_list('val', retriever)
 
-        TRAIN_DATA_DUMP = "val_data.dump"
+        VAL_DATA_DUMP = "val_data.dump"
         if not os.path.isfile(VAL_DATA_DUMP):
             dataset_val = HARDataset(sample_list_val, self.sent_embedder)
-            with open(path, 'wb') as f:
+            with open(VAL_DATA_DUMP, 'wb') as f:
                 pickle.dump({
                     'val_data_dump': dataset_val
                 }, f)
@@ -186,7 +187,7 @@ class HeiarchicalAttentionReranker(AbsReranker):
 
         dataloader_val = DataLoader(dataset_val, batch_size=batch_size, collate_fn=self.model.collate_fn)
         
-        optimizer = torch.optim.Adam(self.model.parameters)
+        optimizer = torch.optim.Adam(self.model.parameters())
         Trainer.run(self.model, optimizer, dataloader_train, dataloader_val, 1, path, n_epoch)
 
     @classmethod

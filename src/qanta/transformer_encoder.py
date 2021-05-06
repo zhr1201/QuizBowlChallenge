@@ -122,26 +122,11 @@ class TransformerEncoder(torch.nn.Module):
             position embedded tensor and mask
         """
         masks = (~make_pad_mask(ilens)[:, None, :]).to(xs_pad.device)
-
-        if (
-            isinstance(self.embed, Conv2dSubsampling)
-            or isinstance(self.embed, Conv2dSubsampling6)
-            or isinstance(self.embed, Conv2dSubsampling8)
-        ):
-            short_status, limit_size = check_short_utt(self.embed, xs_pad.size(1))
-            if short_status:
-                raise TooShortUttError(
-                    f"has {xs_pad.size(1)} frames and is too short for subsampling "
-                    + f"(it needs more than {limit_size} frames), return empty results",
-                    xs_pad.size(1),
-                    limit_size,
-                )
-            xs_pad, masks = self.embed(xs_pad, masks)
-        else:
-            xs_pad = self.embed(xs_pad)
+        xs_pad = self.embed(xs_pad)
+        import pdb
+        pdb.set_trace()
         xs_pad, masks = self.encoders(xs_pad, masks)
         if self.normalize_before:
             xs_pad = self.after_norm(xs_pad)
-
         olens = masks.squeeze(1).sum(1)
         return xs_pad, olens, None

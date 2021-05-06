@@ -55,13 +55,16 @@ class Trainer:
             output_dir: str, output directory for trianing
             max_epoch: int, max num of epochs for training
         '''
+        import pdb
+        pdb.set_trace()
         start_epoch = 1
         start_time = time.perf_counter()
         logging.info("Training started!")
         best_loss = sys.float_info.max
         for iepoch in range(start_epoch, max_epoch + 1):
-            cls.train_one_epoch(model, optimizer, iterator, n_gpu)
-            cur_loss = cls.validate_one_epoch(model, iterator, n_gpu)
+            cls.train_one_epoch(model, optimizer, train_iterator, n_gpu)
+            cur_loss = cls.validate_one_epoch(model, valid_iterator, n_gpu)
+            logger.info("%d th epoch validation loss: %.2f" % (iepoch, cur_loss))
             if cur_loss < best_loss:
                 best_loss = cur_loss
                 torch.save(
@@ -90,8 +93,11 @@ class Trainer:
         '''
         start_time = time.perf_counter()
         model.train()
-        for iiter, batch in enumerate(iterator):
-            batch = to_device(batch, "cuda" if ngpu > 0 else "cpu")
+        i = 0
+        for batch in iterator:
+            i += 1   
+            optimizer.zero_grad()
+            batch = to_device(batch, "cuda" if n_gpu > 0 else "cpu")
             retval = model(**batch)
             loss = retval["loss"]
             stats = retval["stats"]
@@ -100,8 +106,9 @@ class Trainer:
             for k, v in stats.items():
                 stats_str += k + ": " + v
 
-            logging.info('%n th epoch: ' +  stats_str)
+            logging.info(str(i) + ' batch: ' +  stats_str)
             loss.backward()
+            optimizer.step()
 
     @classmethod
     @torch.no_grad()
@@ -125,7 +132,7 @@ class Trainer:
         loss_tot = 0
         batch_count = 0
         for (_, batch) in iterator:
-            batch = to_device(batch, "cuda" if ngpu > 0 else "cpu")
+            batch = to_device(batch, "cuda" if n_gpu > 0 else "cpu")
             retval = model(**batch)
             stats_str = ""
             for k, v in stats.items():
@@ -133,5 +140,4 @@ class Trainer:
             loss_tot += stats['loss']
             batch_count += 1
         validation_loss = loss_tot / batch_count
-        logging.info('%n th epoch validation loss: ' +  validation_loss)
         return validation_loss

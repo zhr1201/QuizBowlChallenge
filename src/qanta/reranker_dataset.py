@@ -67,6 +67,14 @@ class HARDataset(Dataset):
                      'sentence_emb': sent_emb,
                      'label': label})
 
+    def __len__(self) -> int:
+        '''
+        required method for torch dataset
+        Returns:
+            len of the dataset
+        '''
+        return len(self.data_list)
+        
     def __getitem__(self, index: int) -> Dict[str, np.ndarray]:
         '''
         one way to implemnent a iterable

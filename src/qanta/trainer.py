@@ -98,8 +98,8 @@ class Trainer:
             batch = to_device(batch, "cuda" if n_gpu > 0 else "cpu")
             retval = model(**batch)
             loss = retval["loss"]
-
-            logging.info(str(i) + ' batch: ' +  str(loss))
+            acc = retval['acc']
+            logging.info(str(i) + ' batch: loss' +  str(loss.numpy()[0]) + "acc" + str(acc.numpy()[0])]
             loss.backward()
             optimizer.step()
 

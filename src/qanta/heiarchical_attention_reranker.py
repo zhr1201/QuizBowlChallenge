@@ -324,22 +324,6 @@ class HeiarchicalAttentionReranker(AbsReranker):
         sample_list = []
         questions = data[0]
         answers = data[1]
-        # for q, ans in tqdm(zip(questions, answers)):
-        #     retrieved_pages = retriever.retrieve([q])[0]
-        #     passage_list = []
-        #     label_list = []
-        #     for page, score in retrieved_pages:
-        #         try:
-        #             page_item = self.wiki_page_dict[page]
-        #             # Just use summary for now
-        #             # time.sleep(0.1)
-        #             summary = page_item.summary
-        #             passage_list.append(summary)
-        #         except:
-        #             logger.warning("Skipping page" + page)
-        #             continue
-        #         label_list.append(ans == page)
-        #     sample_list.append([q, passage_list, label_list])
 
         tot_len = len(questions)
         retrieved_pages = []

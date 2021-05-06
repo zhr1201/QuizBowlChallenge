@@ -11,9 +11,9 @@ reranker_conf:
   input_size: 768
   attention_dim: 512
   attention_heads: 16
-  num_blocks: 3
+  num_blocks: 5
 reranker_train_args:
   wiki_dump: data/wiki_lookup.json
   dict_path: dict_dump.pickle
   batch_size: 128
-  n_epoch: 20
+  n_epoch: 100

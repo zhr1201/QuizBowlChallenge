@@ -55,8 +55,6 @@ class Trainer:
             output_dir: str, output directory for trianing
             max_epoch: int, max num of epochs for training
         '''
-        import pdb
-        pdb.set_trace()
         start_epoch = 1
         start_time = time.perf_counter()
         logging.info("Training started!")
@@ -100,13 +98,8 @@ class Trainer:
             batch = to_device(batch, "cuda" if n_gpu > 0 else "cpu")
             retval = model(**batch)
             loss = retval["loss"]
-            stats = retval["stats"]
-            weight = retval["weight"]
-            stats_str = ""
-            for k, v in stats.items():
-                stats_str += k + ": " + v
 
-            logging.info(str(i) + ' batch: ' +  stats_str)
+            logging.info(str(i) + ' batch: ' +  str(loss))
             loss.backward()
             optimizer.step()
 

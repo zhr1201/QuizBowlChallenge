@@ -41,6 +41,9 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level = logging.INFO)
 
 
+THREASH_HOLD = 0.5
+
+
 class TransformerEncoderClassifier(torch.nn.Module):
     '''
     Using transformer encoder to classify if the page is the answer to the question using Transformer encoder
@@ -63,6 +66,8 @@ class TransformerEncoderClassifier(torch.nn.Module):
         self.transformer_enc = TransformerEncoder(
             input_size=input_size, output_size=attention_dim, attention_heads=attention_heads, num_blocks=num_blocks)
         self.lin = torch.nn.Linear(attention_dim, 1)
+        self.act = torch.nn.Sigmoid()
+        self.criterion = torch.nn.CrossEntropyLoss()
     
     def forward(
         self,
@@ -78,6 +83,13 @@ class TransformerEncoderClassifier(torch.nn.Module):
             labels: torch.Tensor, labels
         '''
         hs_pad, olens, _ = self.transformer_enc(xs_pad, ilens)
+        hs_cls = hs_pad[:, 0, :]
+        lin_out = self.lin(hs_cls)
+        loss = self.criterion(lin_out, labels)
+        act = self.act(lin_out)
+        inference = act > THREASH_HOLD
+        acc = (inference == labels).sum() / inference.shape[0]
+        return {'loss': loss, 'inference': inference, 'acc': acc}
 
     @staticmethod
     def collate_fn(batch: List[Dict[str, np.array]]) -> Dict[str, np.array]:
@@ -337,9 +349,6 @@ class HeiarchicalAttentionReranker(AbsReranker):
             end_idx = min(idx + batch_size, tot_len)
             one_batch = retriever.retrieve(questions[idx:end_idx])
             retrieved_pages.extend(one_batch)
-        
-        # import pdb
-        # pdb.set_trace()
         
         for q, pages, ans in tqdm(zip(questions, retrieved_pages, answers)):
             passage_list = []

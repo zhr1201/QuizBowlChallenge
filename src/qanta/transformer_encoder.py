@@ -7,7 +7,7 @@ from typing import Optional
 from typing import Tuple
 from abc import ABC
 import torch
-from qanta.embedding import RelPositionalEncoding, PositionalEncoding
+from qanta.embedding import PositionalEncoding
 from qanta.attention import LayerNorm, PositionwiseFeedForward, EncoderLayer, MultiHeadedAttention, make_pad_mask
 
 

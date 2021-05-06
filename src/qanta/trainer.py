@@ -61,8 +61,8 @@ class Trainer:
         best_loss = sys.float_info.max
         for iepoch in range(start_epoch, max_epoch + 1):
             cls.train_one_epoch(model, optimizer, train_iterator, n_gpu)
-            cur_loss = cls.validate_one_epoch(model, valid_iterator, n_gpu)
-            logger.info("%d th epoch validation loss: %.2f" % (iepoch, cur_loss))
+            cur_loss, cur_acc = cls.validate_one_epoch(model, valid_iterator, n_gpu)
+            logger.info("%d th epoch validation loss: %.2f, acc %.3f" % (iepoch, cur_loss, cur_acc))
             if cur_loss < best_loss:
                 best_loss = cur_loss
                 torch.save(
@@ -99,7 +99,8 @@ class Trainer:
             retval = model(**batch)
             loss = retval["loss"]
             acc = retval['acc']
-            logging.info(str(i) + ' batch: loss' +  str(loss.numpy()[0]) + "acc" + str(acc.numpy()[0])]
+            if i % 200 == 0:
+                logging.info(str(i) + ' batch: loss' +  str(loss.cpu().detach().numpy()) + " acc:" + str(acc.cpu().detach().numpy()))
             loss.backward()
             optimizer.step()
 
@@ -109,7 +110,7 @@ class Trainer:
         cls,
         model: torch.nn.Module,
         iterator: Iterable[Dict[str, torch.Tensor]],
-        n_gpu, int,
+        n_gpu: int,
     ) -> float:
         '''
         validate one epoch
@@ -123,14 +124,14 @@ class Trainer:
         '''
         model.eval()
         loss_tot = 0
+        acc_tot = 0
         batch_count = 0
-        for (_, batch) in iterator:
+        for batch in iterator:
             batch = to_device(batch, "cuda" if n_gpu > 0 else "cpu")
             retval = model(**batch)
-            stats_str = ""
-            for k, v in stats.items():
-                stats_str += k + ": " + v
-            loss_tot += stats['loss']
+            loss_tot += retval['loss']
+            acc_tot += retval['acc']
             batch_count += 1
         validation_loss = loss_tot / batch_count
-        return validation_loss
+        val_acc = acc_tot / batch_count
+        return validation_loss, val_acc

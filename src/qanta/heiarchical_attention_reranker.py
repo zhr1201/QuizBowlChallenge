@@ -89,7 +89,7 @@ class TransformerEncoderClassifier(torch.nn.Module):
         act = self.act(lin_out)
         inference = act > THREASH_HOLD
         acc = (inference == labels).sum() / inference.shape[0]
-        return {'loss': loss, 'inference': inference, 'acc': acc}
+        return {'loss': loss, 'score': lin_out, 'acc': acc}
 
     @staticmethod
     def collate_fn(batch: List[Dict[str, np.array]]) -> Dict[str, np.array]:
@@ -102,6 +102,7 @@ class TransformerEncoderClassifier(torch.nn.Module):
         Returns:
             training data compatible with the model and HARDataset
         '''
+        batch = [x for x in batch if len(x['question_emb'].shape) == 1 and len(x['sentence_emb'].shape) == 2 ]
         xs = [np.concatenate((x['question_emb'].reshape([1, -1]), x['sentence_emb'])) for x in batch]
         ilen = [x.shape[0] for x in xs]
         labels = [x['label'] for x in batch]
@@ -199,7 +200,7 @@ class HeiarchicalAttentionReranker(AbsReranker):
 
         dataloader_val = DataLoader(dataset_val, batch_size=batch_size, collate_fn=self.model.collate_fn)
         
-        optimizer = torch.optim.Adam(self.model.parameters())
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=0.0001)
         Trainer.run(self.model, optimizer, dataloader_train, dataloader_val, 1, path, n_epoch)
 
     @classmethod

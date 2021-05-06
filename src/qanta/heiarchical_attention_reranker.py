@@ -35,6 +35,7 @@ import nltk
 import nltk.data
 
 from tqdm import tqdm
+from reranker_dataset import MAX_SENT_N
 
 
 logger = logging.getLogger(__name__)
@@ -144,6 +145,7 @@ class HeiarchicalAttentionReranker(AbsReranker):
         self.sent_embedder = SentenceTransformer('paraphrase-distilroberta-base-v1')
         self.model = TransformerEncoderClassifier(
             input_size, attention_dim,attention_heads, num_blocks).to('cuda:0')
+        self.splitter = nltk.data.load('tokenizers/punkt/english.pickle', verbose=False)
     
     def train(
         self,
@@ -239,6 +241,75 @@ class HeiarchicalAttentionReranker(AbsReranker):
             top_k = top_k_list[i]
             ret.append(self._rerank_one_question(question, top_k))
         return ret
+    
+    def _rerank_one_question(
+        self,
+        question: str,
+        top_k: List[Tuple[str, float]],
+    ) -> List[Tuple[str, float]]:
+        '''
+        Args:
+            question: str, original question
+            top_k: List[Tuple[str, float]], a list of input top k result of [wiki_tag, retrieve score]
+        Returns:
+            the reranked results [wiki_tag, reranked points]
+        ''' 
+        ret = []
+        for result in top_k:
+            question_lower = question.lower()
+            new_score = self._rescore_one_page(question_lower, result)
+            if new_score is None:
+                logger.warning("Skip reranking due to missing page info")
+                return top_k
+            ret.append(new_score)
+        # ret.sort(key = lambda x: x[1])
+        # ret.reverse()
+        # if (ret[0][0] != top_k[0][0]):
+        #     logger.info("Reranker changed the best guess from %s to %s" % (top_k[0][0], ret[0][0]))
+        #     logger.info("Original question: %s" % question)
+        return ret
+    
+    def _rescore_one_page(
+        self,
+        question: str,
+        page_info: Tuple[str, float],
+    ) -> Tuple[str, float]:
+        '''
+        Args:
+            question: str, original question
+            page_info: Tuple[str, float], page info of [wiki_tag, retrieve score]
+        Returns:
+            the reranked results [wiki_tag, reranked points]
+        ''' 
+        
+        logger.info("reranking " + page_info[0] + ' score ' + str(page_info[1]))
+        mention_count = 0
+        if page_info[0] in self.wiki_page_dict:
+            page = self.wiki_page_dict[page_info[0]]
+        else:
+            logger.warning("Page" + page_info[0] + " not in the dictionary of the model")
+            return None
+        try:
+            summary = page.summary
+        except:
+            return None
+        
+        q_last_sent = self.splitter.tokenize(question)[-1]
+        q_emb = self.sent_embedder.encode([q_last_sent])
+        q_emb = q_emb[0]
+
+        sentences = self.splitter.tokenize(summary)[:MAX_SENT_N]
+        sent_emb = sent_trans.encode(sentences, show_progress_bar=False)
+        if len(q_emb.shape) != 1 or len(sent_emb.shape) != 2:
+            return None
+        
+        xs = np.concatenate((q_emb.reshape([1, -1]), sent_emb))
+        ilen = xs.shape[0]
+        xs = torch.tensor(np.expand_dims(xs, axis=0))
+        ilen = torch.tensor([ilen])
+        retval = self.model(xs, ilen)
+        score = retval['score']
+        return (page_info[0], score)
     
     def _load_wiki_dict(self, path: str):
         '''

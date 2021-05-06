@@ -52,7 +52,7 @@ class HARDataset(Dataset):
                 
             q_last_sent = self.splitter.tokenize(q)[-1]
             try:
-                q_emb = sent_trans.encode([q], show_progress_bar=False)
+                q_emb = sent_trans.encode([q_last_sent], show_progress_bar=False)
             except:
                 logger.warning('Failed to process one page')
                 continue

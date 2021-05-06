@@ -62,7 +62,7 @@ class TransformerEncoder(torch.nn.Module):
         dropout_rate: float = 0.1,
         positional_dropout_rate: float = 0.1,
         attention_dropout_rate: float = 0.0,
-        pos_enc_class: PositionalEncoding = RelPositionalEncoding,
+        pos_enc_class: PositionalEncoding = PositionalEncoding,
         normalize_before: bool = True,
         padding_idx: int = -1,
     ):
@@ -123,8 +123,6 @@ class TransformerEncoder(torch.nn.Module):
         """
         masks = (~make_pad_mask(ilens)[:, None, :]).to(xs_pad.device)
         xs_pad = self.embed(xs_pad)
-        import pdb
-        pdb.set_trace()
         xs_pad, masks = self.encoders(xs_pad, masks)
         if self.normalize_before:
             xs_pad = self.after_norm(xs_pad)

@@ -67,7 +67,7 @@ class TransformerEncoderClassifier(torch.nn.Module):
             input_size=input_size, output_size=attention_dim, attention_heads=attention_heads, num_blocks=num_blocks)
         self.lin = torch.nn.Linear(attention_dim, 1)
         self.act = torch.nn.Sigmoid()
-        self.criterion = torch.nn.CrossEntropyLoss()
+        self.criterion = torch.nn.BCEWithLogitsLoss()
     
     def forward(
         self,
@@ -84,8 +84,8 @@ class TransformerEncoderClassifier(torch.nn.Module):
         '''
         hs_pad, olens, _ = self.transformer_enc(xs_pad, ilens)
         hs_cls = hs_pad[:, 0, :]
-        lin_out = self.lin(hs_cls)
-        loss = self.criterion(lin_out, labels)
+        lin_out = self.lin(hs_cls).squeeze(1)
+        loss = self.criterion(lin_out, labels.double())
         act = self.act(lin_out)
         inference = act > THREASH_HOLD
         acc = (inference == labels).sum() / inference.shape[0]

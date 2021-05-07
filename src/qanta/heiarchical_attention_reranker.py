@@ -35,7 +35,7 @@ import nltk
 import nltk.data
 
 from tqdm import tqdm
-from reranker_dataset import MAX_SENT_N
+from qanta.reranker_dataset import MAX_SENT_N
 
 
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ class TransformerEncoderClassifier(torch.nn.Module):
         act = self.act(lin_out)
         inference = act > THREASH_HOLD
         acc = (inference == labels).sum() / inference.shape[0]
-        return {'loss': loss, 'score': lin_out, 'acc': acc}
+        return {'loss': loss, 'score': act, 'acc': acc}
 
     @staticmethod
     def collate_fn(batch: List[Dict[str, np.array]]) -> Dict[str, np.array]:
@@ -133,7 +133,8 @@ class HeiarchicalAttentionReranker(AbsReranker):
         input_size: int,
         attention_dim: int,
         attention_heads: int,
-        num_blocks: int
+        num_blocks: int,
+        dict_path: str,
     ):
         '''
         Args:
@@ -209,15 +210,22 @@ class HeiarchicalAttentionReranker(AbsReranker):
     def load(
         cls,
         path: str,
-    ) -> 'FeatureReranker':
+        input_size: int,
+        attention_dim: int,
+        attention_heads: int,
+        num_blocks: int,
+        weight: int,
+        dict_path: str,
+    ) -> 'HeiarchicalAttentionReranker':
         '''
         load the model, factory method
         Args:
             path: str, path for loading the model, not needed since no training is required
+            others are the same as contructor
         Returns:
             the loaded model
         '''
-        reranker = FeatureReranker(weight)
+        reranker = HeiarchicalAttentionReranker(weight, input_size, attention_dim, attention_heads, num_blocks, dict_path)
         reranker._load_wiki_dict(dict_path)
         reranker.model.load_state_dict(torch.load(path)['model'], path)
         return reranker
@@ -282,8 +290,8 @@ class HeiarchicalAttentionReranker(AbsReranker):
             the reranked results [wiki_tag, reranked points]
         ''' 
         
-        logger.info("reranking " + page_info[0] + ' score ' + str(page_info[1]))
         mention_count = 0
+        logger.info('reranking ' + page_info[0] + ' score ' + str(page_info[1]))
         if page_info[0] in self.wiki_page_dict:
             page = self.wiki_page_dict[page_info[0]]
         else:
@@ -293,22 +301,23 @@ class HeiarchicalAttentionReranker(AbsReranker):
             summary = page.summary
         except:
             return None
-        
         q_last_sent = self.splitter.tokenize(question)[-1]
         q_emb = self.sent_embedder.encode([q_last_sent])
         q_emb = q_emb[0]
 
         sentences = self.splitter.tokenize(summary)[:MAX_SENT_N]
-        sent_emb = sent_trans.encode(sentences, show_progress_bar=False)
+        sent_emb = self.sent_embedder.encode(sentences, show_progress_bar=False)
         if len(q_emb.shape) != 1 or len(sent_emb.shape) != 2:
             return None
         
         xs = np.concatenate((q_emb.reshape([1, -1]), sent_emb))
         ilen = xs.shape[0]
-        xs = torch.tensor(np.expand_dims(xs, axis=0))
-        ilen = torch.tensor([ilen])
-        retval = self.model(xs, ilen)
-        score = retval['score']
+        xs = torch.tensor(np.expand_dims(xs, axis=0)).to('cuda:0')
+        ilen = torch.tensor([ilen]).to('cuda:0')
+        label = torch.tensor([True]).to('cuda:0')  # dummy label
+        retval = self.model(xs, ilen, label)
+        score = retval['score'] * self.weight + page_info[1]
+        logger.info('reranked score: %.2f' % score)
         return (page_info[0], score)
     
     def _load_wiki_dict(self, path: str):

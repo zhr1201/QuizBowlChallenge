@@ -7,11 +7,12 @@ retriever_train_args:
 reranker: HAR
 reranker_path: har_reranker.mdl
 reranker_conf:
-  weight: 0.015
+  weight: 0.15
   input_size: 768
   attention_dim: 512
   attention_heads: 16
   num_blocks: 5
+  dict_path: dict_dump.pickle
 reranker_train_args:
   wiki_dump: data/wiki_lookup.json
   dict_path: dict_dump.pickle

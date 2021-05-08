@@ -75,7 +75,7 @@ class TfidfRetriever(AbsRetriever):
             idxs = guess_indices[i]
             guesses.append([(self.i_to_ans[j], guess_matrix[i, j]) for j in idxs])
 
-        return guesses
+        return guesses 
 
     @classmethod
     def load(cls, path: str, k: int) -> 'TfidfRetriever':

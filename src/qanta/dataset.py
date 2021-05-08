@@ -107,64 +107,109 @@ class QantaDatabase:
 
 
 class QuizBowlDataset:
-	def __init__(self, *, guesser_train=False, buzzer_train=False):
-		"""
-		Initialize a new quiz bowl data set
-		"""
-		super().__init__()
-		if not guesser_train and not buzzer_train:
-			raise ValueError('Requesting a dataset which produces neither guesser or buzzer training data is invalid')
 
-		if guesser_train and buzzer_train:
-			print('Using QuizBowlDataset with guesser and buzzer training data, make sure you know what you are doing!')
+    def __init__(self, *, guesser_train=False, buzzer_train=False):
+        """
+        Initialize a new quiz bowl data set
+        """
+        super().__init__()
+        if not guesser_train and not buzzer_train:
+            raise ValueError('Requesting a dataset which produces neither guesser or buzzer training data is invalid')
 
-		self.db = QantaDatabase()
-		self.guesser_train = guesser_train
-		self.buzzer_train = buzzer_train
+        if guesser_train and buzzer_train:
+            print('Using QuizBowlDataset with guesser and buzzer training data, make sure you know what you are doing!')
 
-	def training_data(self):
-		training_examples = []
-		training_pages = []
-		questions = []
-		if self.guesser_train:
-			questions.extend(self.db.guess_train_questions)
-		if self.buzzer_train:
-			questions.extend(self.db.buzz_train_questions)
+        self.db = QantaDatabase()
+        self.guesser_train = guesser_train
+        self.buzzer_train = buzzer_train
 
-		for q in questions:
-			training_examples.append(q.sentences)
-			training_pages.append(q.page)
+    def training_data(self):
+        training_examples = []
+        training_pages = []
+        questions = []
+        if self.guesser_train:
+            questions.extend(self.db.guess_train_questions)
+        if self.buzzer_train:
+            questions.extend(self.db.buzz_train_questions)
 
-		return training_examples, training_pages, None
-	
-	def test_data(self):
-		test_examples = []
-		test_pages = []
-		questions = []
-		if self.guesser_train:
-			questions.extend(self.db.guess_test_questions)
-		if self.buzzer_train:
-			questions.extend(self.db.buzz_test_questions)
+        for q in questions:
+            training_examples.append(q.sentences)
+            training_pages.append(q.page)
 
-		for q in questions:
-			test_examples.append(q.sentences)
-			test_pages.append(q.page)
+        return training_examples, training_pages, None
+    
+    def dev_data(self):
+        dev_examples = []
+        dev_pages = []
+        questions = []
+        if self.guesser_train:
+            questions.extend(self.db.guess_dev_questions)
+        if self.buzzer_train:
+            questions.extend(self.db.buzz_dev_questions)
 
-		return test_examples, test_pages, None
-		
-	def questions_by_fold(self):
-		return {
-			GUESSER_TRAIN_FOLD: self.db.guess_train_questions,
-			GUESSER_DEV_FOLD: self.db.guess_dev_questions,
-			BUZZER_TRAIN_FOLD: self.db.buzz_train_questions,
-			BUZZER_DEV_FOLD: self.db.buzz_dev_questions,
-			BUZZER_TEST_FOLD: self.db.buzz_test_questions,
-			GUESSER_TEST_FOLD: self.db.guess_test_questions
-		}
+        for q in questions:
+            dev_examples.append(q.sentences)
+            dev_pages.append(q.page)
 
-	def questions_in_folds(self, folds):
-		by_fold = self.questions_by_fold()
-		questions = []
-		for fold in folds:
-			questions.extend(by_fold[fold])
-		return questions
+        return dev_examples, dev_pages, None
+     
+    def test_data(self):
+        test_examples = []
+        test_pages = []
+        questions = []
+        if self.guesser_train:
+            questions.extend(self.db.guess_test_questions)
+        if self.buzzer_train:
+            questions.extend(self.db.buzz_test_questions)
+
+        for q in questions:
+            test_examples.append(q.sentences)
+            test_pages.append(q.page)
+        return test_examples, test_pages, None
+
+    def training_data_text(self):
+        training_examples = []
+        training_pages = []
+        questions = []
+        if self.guesser_train:
+            questions.extend(self.db.guess_train_questions)
+        if self.buzzer_train:
+            questions.extend(self.db.buzz_train_questions)
+
+        for q in questions:
+            training_examples.append(q.text)
+            training_pages.append(q.page)
+
+        return training_examples, training_pages, None
+
+    def dev_data_text(self):
+        dev_examples = []
+        dev_pages = []
+        questions = []
+        if self.guesser_train:
+            questions.extend(self.db.guess_dev_questions)
+        if self.buzzer_train:
+            questions.extend(self.db.buzz_dev_questions)
+
+        for q in questions:
+            dev_examples.append(q.text)
+            dev_pages.append(q.page)
+
+        return dev_examples, dev_pages, None
+
+    def questions_by_fold(self):
+        return {
+            GUESSER_TRAIN_FOLD: self.db.guess_train_questions,
+            GUESSER_DEV_FOLD: self.db.guess_dev_questions,
+            BUZZER_TRAIN_FOLD: self.db.buzz_train_questions,
+            BUZZER_DEV_FOLD: self.db.buzz_dev_questions,
+            BUZZER_TEST_FOLD: self.db.buzz_test_questions,
+            GUESSER_TEST_FOLD: self.db.guess_test_questions
+        }
+
+    def questions_in_folds(self, folds):
+        by_fold = self.questions_by_fold()
+        questions = []
+        for fold in folds:
+            questions.extend(by_fold[fold])
+        return questions

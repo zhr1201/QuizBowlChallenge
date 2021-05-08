@@ -14,6 +14,8 @@ from qanta.guesser import Guesser
 from qanta.abs_reranker import AbsReranker
 from qanta.abs_retriever import AbsRetriever
 from qanta.tfidf_retriever import TfidfRetriever
+from qanta.bm25_retriever import BM25Retriever
+from qanta.bm25_Bags_of_words_retriever import BM25BoWRetriever
 from qanta.feature_reranker import FeatureReranker
 from qanta.heiarchical_attention_reranker import HeiarchicalAttentionReranker
 import yaml
@@ -47,7 +49,7 @@ for dynamically loading retriever and reranker classes
 add your class to this dictionary for extending more retriever and reranker
 '''
 
-RETRIEVER_CHOICES = {'TFIDF': TfidfRetriever}
+RETRIEVER_CHOICES = {'TFIDF': TfidfRetriever, 'BM25': BM25Retriever, 'BM25_BoW': BM25BoWRetrieve}
 RERANKER_CHOICES = {'FeatureReranker': FeatureReranker, "HAR": HeiarchicalAttentionReranker}
 
 

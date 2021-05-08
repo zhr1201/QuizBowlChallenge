@@ -1,6 +1,6 @@
 # Copyright 2021 UMD (Haoran Zhou)
 
-# Feature based reranker utilizing 
+# Feature based reranker utilizing wiki page links to rescore the results
 
 
 from typing import Optional

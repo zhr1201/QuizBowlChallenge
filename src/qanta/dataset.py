@@ -158,15 +158,14 @@ class QuizBowlDataset:
         test_pages = []
         questions = []
         if self.guesser_train:
-          questions.extend(self.db.guess_test_questions)
+            questions.extend(self.db.guess_test_questions)
         if self.buzzer_train:
-          questions.extend(self.db.buzz_test_questions)
+            questions.extend(self.db.buzz_test_questions)
 
         for q in questions:
-          test_examples.append(q.sentences)
-          test_pages.append(q.page)
-
-		return test_examples, test_pages, None
+            test_examples.append(q.sentences)
+            test_pages.append(q.page)
+        return test_examples, test_pages, None
 
     def training_data_text(self):
         training_examples = []

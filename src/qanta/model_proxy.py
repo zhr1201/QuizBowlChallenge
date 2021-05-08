@@ -49,7 +49,7 @@ for dynamically loading retriever and reranker classes
 add your class to this dictionary for extending more retriever and reranker
 '''
 
-RETRIEVER_CHOICES = {'TFIDF': TfidfRetriever, 'BM25': BM25Retriever, 'BM25_BoW': BM25BoWRetrieve}
+RETRIEVER_CHOICES = {'TFIDF': TfidfRetriever, 'BM25': BM25Retriever, 'BM25_BoW': BM25BoWRetriever}
 RERANKER_CHOICES = {'FeatureReranker': FeatureReranker, "HAR": HeiarchicalAttentionReranker}
 
 

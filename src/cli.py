@@ -1,6 +1,6 @@
-# command line interface
-
-
+'''
+command line interface
+'''
 from typing import Optional
 from typing import Tuple
 import click
@@ -50,7 +50,7 @@ def train_retriever(config_file: str):
 
 
 @cli.command()
-@click.option('--config-file', default='conf/BM25-FeatureReranker.yaml')
+@click.option('--config-file', default='conf/BM25-HAR.yaml')
 def train_reranker(config_file: str):
     """
     Train a reranker

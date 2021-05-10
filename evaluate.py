@@ -245,7 +245,7 @@ def evaluate(input_dir, output_dir, score_dir, char_step_size, hostname,
 
         if status is not None and status['batch'] is True:
             url = f'http://{hostname}:4861/api/1.0/quizbowl/batch_act'
-            answers = get_answer_batch(url, questions, evidences,
+            answers = get_answer_batch_whole(url, questions, evidences,
                                        char_step_size,
                                        status['batch_size'],
                                        wiki_paragraphs=include_wiki_paragraphs)

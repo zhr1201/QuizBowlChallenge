@@ -1,0 +1,7 @@
+retriever: BM25_BoW
+retriever_path: BM25_BoW.pickle
+retriever_conf:
+  k: 10
+retriever_train_args:
+
+reranker:

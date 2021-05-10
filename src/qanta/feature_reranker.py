@@ -136,6 +136,10 @@ class FeatureReranker(AbsReranker):
             the reranked results [wiki_tag, reranked points]
         ''' 
         ret = []
+        #max_score = top_k[0][1]
+        #top_k_norm = []
+        #for page, score in top_k:
+            #top_k_norm.append((page, score/max_score))
         for result in top_k:
             question_lower = question.lower()
             new_score = self._rescore_one_page(question_lower, result)

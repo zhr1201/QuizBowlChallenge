@@ -8,4 +8,4 @@ else
   echo "INFO: Using base environemnt"
 fi
 
-python -m qanta.cli web
+python -m qanta.cli web --config-file conf/TFIDF-None.yaml

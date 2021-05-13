@@ -1,0 +1,14 @@
+retriever: BM25
+retriever_path: BM25.pickle
+retriever_conf:
+  k: 10
+retriever_train_args:
+
+reranker: SpacyNERNNQEReranker
+reranker_path: spacy_ner_nn_bm25_qe_reranker.pickle
+reranker_conf:
+reranker_train_args:
+  #wiki_dump: data/wiki_lookup.json
+  retriever_path: BM25.pickle
+  k: 10
+  ner_train_dump: ner_bm25_qe_train.pickle

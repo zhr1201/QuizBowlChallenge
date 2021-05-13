@@ -1,0 +1,8 @@
+retriever: DPRWIKI
+retriever_path: dprwikidict.pickle
+retriever_conf:
+  k: 10
+  emb_path: dprwiki.faiss
+retriever_train_args:
+  wiki_dump: data/wiki_lookup.json
+reranker:

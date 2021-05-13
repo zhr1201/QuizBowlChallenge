@@ -115,3 +115,10 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
+*.pkl
+*.ipynb
+*.slurm
+src/data/*
+*.png
+*.out
+src/outputs/

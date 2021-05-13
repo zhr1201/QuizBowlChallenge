@@ -1,0 +1,12 @@
+retriever: DOC2VEC
+retriever_path: doc2vec.pickle
+retriever_conf:
+  k: 10
+retriever_train_args:
+  windows: 10
+  vector_size: 1000
+  epochs: 40
+  dm: 1
+  workers: 12
+
+reranker:

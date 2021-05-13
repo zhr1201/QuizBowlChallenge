@@ -1,0 +1,15 @@
+retriever: BM25
+retriever_path: BM25.pickle
+retriever_conf:
+  k: 10
+retriever_train_args:
+
+reranker: SpacyNERQUESReranker
+reranker_path: spacy_ner_ques_reranker.pickle
+reranker_conf:
+  weight: 0.026
+reranker_train_args:
+  #wiki_dump: data/wiki_lookup.json
+  #retriever_path: BM25.pickle
+  #k: 10
+  #ner_train_dump: ner_bm25_train.pickle

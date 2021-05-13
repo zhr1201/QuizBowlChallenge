@@ -1,0 +1,9 @@
+retriever: DPR
+retriever_path: dprdict.pickle
+retriever_conf:
+  k: 10
+  emb_path: dpr.faiss
+retriever_train_args:
+  combine_questions: False
+
+reranker:

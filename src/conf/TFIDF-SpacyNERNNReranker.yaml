@@ -1,0 +1,14 @@
+retriever: TFIDF
+retriever_path: tfidf.pickle
+retriever_conf:
+  k: 10
+retriever_train_args:
+
+reranker: SpacyNERNNReranker
+reranker_path: spacy_ner_nn_reranker.pickle
+reranker_conf:
+reranker_train_args:
+  wiki_dump: data/wiki_lookup.json
+  retriever_path: tfidf.pickle
+  k: 10
+  ner_train_dump: ner_train.pickle

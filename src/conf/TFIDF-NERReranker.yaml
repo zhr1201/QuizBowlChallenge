@@ -1,0 +1,12 @@
+retriever: TFIDF
+retriever_path: tfidf.pickle
+retriever_conf:
+  k: 10
+retriever_train_args:
+
+reranker: NERReranker
+reranker_path: ner_reranker.pickle
+reranker_conf:
+  weight: 0.5
+reranker_train_args:
+  wiki_dump: data/wiki_lookup.json

@@ -18,6 +18,14 @@ from qanta.bm25_retriever import BM25Retriever
 from qanta.bm25_Bags_of_words_retriever import BM25BoWRetriever
 from qanta.feature_reranker import FeatureReranker
 from qanta.heiarchical_attention_reranker import HeiarchicalAttentionReranker
+from qanta.spacyner_reranker import SpacyNERReranker
+from qanta.spacyner_nn_reranker import SpacyNERNNReranker
+from qanta.bm25_prepro_retriever import BM25PRERetriever
+from qanta.spacyner_questions_reranker import SpacyNERQUESReranker
+from qanta.spacyner_nnv2_reranker import SpacyNERNNV2Reranker
+from qanta.spacyner_nnqe_reranker import SpacyNERNNQEReranker
+from qanta.spacyner_questionstag_reranker import SpacyNERQUESTAGReranker
+from qanta.spacyner_wikitag_reranker import SpacyNERWIKITAGReranker
 import yaml
 
 
@@ -49,8 +57,11 @@ for dynamically loading retriever and reranker classes
 add your class to this dictionary for extending more retriever and reranker
 '''
 
-RETRIEVER_CHOICES = {'TFIDF': TfidfRetriever, 'BM25': BM25Retriever, 'BM25_BoW': BM25BoWRetriever}
-RERANKER_CHOICES = {'FeatureReranker': FeatureReranker, "HAR": HeiarchicalAttentionReranker}
+RETRIEVER_CHOICES = {'TFIDF': TfidfRetriever, 'BM25': BM25Retriever, 'BM25_BoW': BM25BoWRetriever,'BM25PRE':BM25PRERetriever}
+RERANKER_CHOICES = {'FeatureReranker': FeatureReranker,"SpacyNERReranker":SpacyNERReranker,
+"SpacyNERNNReranker":SpacyNERNNReranker,"SpacyNERQUESReranker":SpacyNERQUESReranker,
+"SpacyNERNNV2Reranker":SpacyNERNNV2Reranker,"SpacyNERNNQEReranker":SpacyNERNNQEReranker,
+"SpacyNERQUESTAGReranker":SpacyNERQUESTAGReranker,'SpacyNERWIKITAGReranker':SpacyNERWIKITAGReranker}
 
 
 class ModelProxy(ABC):

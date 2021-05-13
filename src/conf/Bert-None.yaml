@@ -1,0 +1,7 @@
+retriever: BERT
+retriever_path: bert.pickle
+retriever_conf:
+  k: 10
+retriever_train_args:
+
+reranker:
